@@ -1,0 +1,12 @@
+The installed OctoSniff application was not modified, renamed, overwritten, or
+repackaged in place.
+
+Installed path assessed:
+  C:\Program Files\OctoSniff\OctoSniff.exe
+
+Verified installed/copy SHA-256:
+  2CF7F902FEA4E2109210CA36BE8ADE859B0CB7FB1ACEE4794B34AC08D785A317
+
+All authorization changes in the developer PoC are applied only to the bundled
+copy after it starts. Closing that process removes the patches. Its runtime
+profile is package-local and is not included in the shareable deliverable.
