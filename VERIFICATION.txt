@@ -1,0 +1,51 @@
+minor fix pCP - PSN Bridge Fix Verification Summary
+Test date: 2026-08-01
+
+Build
+  - C# x64 compilation: PASS
+  - Launcher SHA-256: 09D8709B59915154735F71138B77F42654150087888881F73BEBF6B147C6B485
+  - Hash-locked target SHA-256: 2CF7F902FEA4E2109210CA36BE8ADE859B0CB7FB1ACEE4794B34AC08D785A317
+  - Required package-layout preflight: PASS
+  - Main window opened: PASS
+
+Filters
+  - Offline Community Filters returned: 37
+  - Loopback-only neutral thumbnail URLs returned: 37
+  - Exact local PSN rule definitions returned: 2
+  - Metadata-only entries kept unavailable: 35
+  - Neutral SVG endpoint status/content type: 200 / image/svg+xml
+  - Existing custom-filter list read before PoC rules are saved: PASS
+  - My Filters entries shown after live launch: 4
+  - Disabled 443 present and inactive: PASS
+  - Auto-hide Port 443 visible/active entries: exactly 1
+  - PSN Tunnel native custom rule: UDP 50000-65535, length 96-158
+  - PSN Party native custom rule: UDP 1024-65535, length 96-140
+  - Port rule: BOTH protocols, BOTH directions, port 443, action hide
+  - HTTPS blocking introduced: NO (display filtering only)
+
+Party and resolver state
+  - Native PlayStation link-status bridge preserved: PASS
+  - Native ListCommunicationSessions bridge preserved: PASS
+  - Runtime preservation marker observed: PASS
+  - Hard-coded psnLinked:false replacement removed: PASS
+  - Hard-coded empty Party list replacement removed: PASS
+  - Live linked-account Party result: REQUIRES AUTHORIZED ACCOUNT TEST
+  - Unlinked/expired Party state remains service-controlled
+  - Fabricated offline party/username: NO
+  - Offline PSN/Xbox Resolver status: unavailable (no fabricated result)
+
+Network adapter
+  - Saved adapter is evaluated before the default adapter: PASS
+  - Missing saved adapter falls back to physical/default/active order: PASS
+  - Manual choice is still persisted by the existing UpdateConfig path: PASS
+
+ARP adapter routing
+  - TAP/tunnel/Wi-Fi Direct/Bluetooth/loopback exclusions applied: PASS
+  - Live StartActiveScan call received a physical Wi-Fi interface: PASS
+  - Native call returned without the virtual/Layer-3 adapter error: PASS
+  - Native Layer-2 validation remains enabled: PASS
+
+This update was compiled and statically verified without copying or recording
+adapter GUIDs, local IPs, MAC addresses, credentials, tokens, or generated
+profile data. A linked-account Party test must be performed by the account
+owner after linking inside this clean package.

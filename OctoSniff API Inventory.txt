@@ -1,0 +1,303 @@
+OCTOSNIFF 5.1.1 - RECOVERED API INVENTORY
+============================================================
+Recovered: 2026-08-01
+Purpose: Developer integration reference, with resolver/xResolver APIs first.
+
+Recovered build:
+  Product version: 5.1.1
+  Executable: sigh_Divine sniff.exe / installed OctoSniff.exe
+  SHA-256: 2CF7F902FEA4E2109210CA36BE8ADE859B0CB7FB1ACEE4794B34AC08D785A317
+
+Safety note:
+  This file lists routes, public service locations, request field names, and
+  configuration variable names. It intentionally does NOT contain bearer
+  tokens, cookies, private keys, shared auth keys, OAuth codes, Sentry DSNs,
+  or other secret values.
+
+
+1. RESOLVER / XRESOLVER QUICK REFERENCE
+============================================================
+
+Production software API base:
+  https://backend.octosniff.net/api/software/v1
+
+Primary resolver
+  Method: POST
+  URL:    https://backend.octosniff.net/api/software/v1/resolve
+  Use:    Generic IP, PlayStation username, and Xbox gamertag resolver.
+
+  Confirmed JSON request type: ResolveRequest
+    ip           string or null  - resolve an IP address
+    playstation  string or null  - resolve a PSN username
+    xbox         string or null  - resolve an Xbox gamertag
+
+  Send only the field for the lookup being performed. Examples:
+    Xbox / xResolver body:        {"xbox":"ExampleGamertag"}
+    PlayStation resolver body:    {"playstation":"ExamplePSNName"}
+    IP resolver body:             {"ip":"203.0.113.10"}
+
+  Confirmed ResolverResource response fields:
+    asn, city, country, country_code, ddos, district, hostname, ip, isp,
+    latitude, longitude, organization, state, usernames, zip_code
+
+  Each item in usernames can contain:
+    console_id, ip_address, type, username
+
+  Important integration finding:
+    OctoSniff 5.1.1 does NOT contain a separate fixed /xresolver route.
+    Xbox lookups use POST /resolve with the JSON field "xbox". PSN lookups
+    use the same route with "playstation".
+
+Resolver usage/count
+  Method: GET
+  URL:    https://backend.octosniff.net/api/software/v1/resolve/count
+  Use:    Returns resolver counts/availability for PlayStation and Xbox.
+  Confirmed response fields: playstation, xbox
+
+Legacy packet-assisted PlayStation resolver
+  Method: POST
+  URL:    https://backend.octosniff.net/api/software/v1/decrypt/playstation
+  Use:    Legacy PlayStation packet/decryption lookup flow.
+  Confirmed JSON fields: client, data, target
+
+Submit a resolver association/token
+  Method: POST
+  URL:    https://backend.octosniff.net/api/software/v1/submit
+  Use:    Stores/completes a resolver association from the packet flow.
+  Confirmed JSON fields: ip, submit_token
+
+Submit a Party username/IP association
+  Method: POST
+  URL:    https://backend.octosniff.net/api/software/v1/party/submit
+  Confirmed JSON fields: ip, username
+
+Internal application call paths recovered from the client:
+  PSN:
+    App.ResolvePlaystationUsername
+      -> requireSubEntitlement
+      -> ipresolver.ResolvePlaystationUsername
+      -> Client.ResolveIP(context, "", psnUsername, "")
+      -> POST /resolve using "playstation"
+
+  Xbox / xResolver:
+    App.ResolveXboxGamertag
+      -> requireSubEntitlement
+      -> ipresolver.ResolveXboxGamertag
+      -> Client.ResolveIP(context, "", "", xboxGamertag)
+      -> POST /resolve using "xbox"
+
+  Both application lookups trim the entered name and use a 10-second timeout.
+
+
+2. COMPLETE OCTOSNIFF SOFTWARE API ROUTE TABLE
+============================================================
+
+All routes below use this base unless a different base is shown:
+  https://backend.octosniff.net/api/software/v1
+
+Resolver and association
+  POST    /resolve
+  GET     /resolve/count
+  POST    /decrypt/playstation
+  POST    /submit
+  POST    /party/submit
+
+Authentication, session, and user
+  POST    /login
+  POST    /two-factor-challenge
+  GET     /verify
+  POST    /session/heartbeat
+  GET     /user
+  GET     /user/filters
+
+Xbox account linking
+  GET     /xbox
+  GET     /xbox/auth-url
+  POST    /xbox/oauth
+  DELETE  /xbox/unlink
+
+IP labels
+  GET     /ip-labels
+  POST    /ip-labels
+  GET     /ip-labels/{ipLabel}
+  PUT     /ip-labels/{ipLabel}
+  DELETE  /ip-labels/{ipLabel}
+
+Packet filters
+  GET     /packet-filters
+  POST    /packet-filters
+  GET     /packet-filters/{packetFilter}
+  PUT     /packet-filters/{packetFilter}
+  DELETE  /packet-filters/{packetFilter}
+  POST    /packet-filters/{packetFilter}/toggle
+  POST    /packet-filters/{packetFilter}/vote
+  GET     /packet-filters/community?search={text}&platform={platform}
+
+Metadata and content
+  GET     /asn-lists
+  GET     /changelog
+  GET     /changelog?platform={platform}
+  GET     /faq
+  GET     /igdb/search?query={query}&limit={limit}
+  GET     /metadata
+  GET     /vendors
+  GET     /version
+  GET     /version?platform={platform}
+
+Encrypted log upload uses the software root, not the generated /v1 base:
+  POST    https://backend.octosniff.net/api/software/logs/upload
+
+Dynamic backend asset location seen in filter data:
+  GET     https://backend.octosniff.net/storage/{asset-path}
+
+
+3. PLAYSTATION PARTY GATEWAY
+============================================================
+
+Gateway origin:
+  https://s0ny-sniff.octosniff.net
+
+Routes:
+  POST  /v2/sync
+        Used by ListSessions, SessionDetails, EnterSession, and ExitSession.
+
+  GET   /v2/stream
+        Event stream used while communication/Party analysis is active.
+
+Related backend association route:
+  POST  https://backend.octosniff.net/api/software/v1/party/submit
+
+The gateway payloads are encrypted and authenticated. Integrations must obtain
+the current gateway public configuration and authorized credentials; no secret
+values are included in this inventory.
+
+
+4. SONY / PLAYSTATION AUTHENTICATION AND PROFILE SERVICES
+============================================================
+
+OAuth authorization locations found in the client or its WebView history:
+  GET   https://ca.account.sony.com/api/authz/v3/oauth/authorize
+  GET   https://ca.account.sony.com/api/v1/oauth/authorize
+  GET   https://auth.api.sonyentertainmentnetwork.com/2.0/oauth/authorize
+
+Token and SSO:
+  POST  https://ca.account.sony.com/api/authz/v3/oauth/token
+  POST  https://ca.account.sony.com/api/authz/v3/oauth/token/
+  GET   https://ca.account.sony.com/api/v1/ssocookie
+
+Sony sign-in and browser completion:
+  GET   https://my.account.sony.com/sonyacct/signin/
+  GET   https://auth.api.sonyentertainmentnetwork.com/mobile-success.jsp
+
+PSN profile and presence:
+  GET   https://m.np.playstation.com/api/userProfile/v1/internal/users/{userId}/profiles
+  GET   https://m.np.playstation.com/api/userProfile/v2/internal/users/{userId}/basicPresences
+
+OAuth client identifiers, authorization codes, access tokens, refresh tokens,
+NPSSO values, and account IDs are intentionally omitted.
+
+
+5. THIRD-PARTY DATA AND SUPPORT ENDPOINTS
+============================================================
+
+Geo-IP
+  GET   https://json.geoiplookup.io/
+  GET   https://json.geoiplookup.io/{ip}
+
+Cloudflare WARP/WireGuard provisioning
+  POST  https://api.cloudflareclient.com/v0a1922/reg
+  Note: later registration/device routes append the returned registration ID
+        and operation suffix dynamically; the stable fixed registration URL
+        above is the one embedded in this build.
+
+MAC/vendor databases
+  GET   https://maclookup.app/downloads/json-database/get-db
+  GET   https://gist.githubusercontent.com/aallan/b4bb86db86079509e6159810ae9bd3e4/raw/846ae1b646ab0f4d646af9115e47365f4118e5f6/mac-vendor.txt
+
+Port/service database
+  GET   https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv
+
+Connectivity check
+  GET   https://www.google.com/generate_204
+
+Country flag assets
+  GET   https://flagcdn.com/w20/{countryCode}.png
+  GET   https://flagpedia.net/data/flags/icon/36x27/{countryCode}.png
+
+Driver/runtime downloads or support pages (not JSON APIs)
+  GET   https://npcap.com/dist/npcap-1.87.exe
+  GET   https://www.wintun.net/
+  GET   https://developer.microsoft.com/microsoft-edge/webview2/
+
+Error telemetry
+  HTTPS ingestion host: o1299393.ingest.us.sentry.io
+  The Sentry DSN/key and project-specific value are intentionally omitted.
+
+
+6. LOCAL-ONLY APPLICATION AND SECURITY POC ROUTES
+============================================================
+
+These are loopback resources. They are NOT production remote APIs.
+
+Wails application origin:
+  http://wails.localhost/
+
+Local inspector WebSocket:
+  ws://127.0.0.1:{port}/ws?token={ephemeral-token}
+
+Offline security PoC catalog, port 48193:
+  GET  http://127.0.0.1:48193/l                 logo
+  GET  http://127.0.0.1:48193/i                 titlebar icon
+  GET  http://127.0.0.1:48193/r                 restored custom filters
+  GET  http://127.0.0.1:48193/c                 community filter catalog
+  GET  http://127.0.0.1:48193/t/{uuid}          toggle filter state
+  GET  http://127.0.0.1:48193/f/{uuid}.svg      filter thumbnail
+
+The PoC frontend also uses the equivalent short loopback host 127.1:48193.
+
+
+7. API SECURITY / CONFIGURATION NAMES
+============================================================
+
+The names below are integration references only. Values were not copied.
+
+Backend transport/authentication:
+  Authorization
+  Content-Type
+  device_timestamp
+  device_signature
+  device_nonce
+  device_public_key
+  hwid
+  PinnedBackendSPKISHA256
+  MTLSClientCertPEM
+  MTLSClientKeyPEM
+
+Party gateway configuration:
+  OCTOSNIFF_PARTY_GATEWAY_ORIGIN
+  OCTOSNIFF_PARTY_ENCRYPTION_KEY_ID
+  OCTOSNIFF_PARTY_ENCRYPTION_PUBLIC_KEY
+  OCTOSNIFF_PARTY_AUTH_KEY_ID
+  OCTOSNIFF_PARTY_AUTH_KEY
+
+
+8. RECOVERY AND CONFIDENCE NOTES
+============================================================
+
+  - The generated /v1 route table, methods, resolver request fields, and
+    response fields were recovered directly from the exact 5.1.1 executable.
+  - The packed program was unpacked only in a temporary, isolated application
+    data profile while outbound traffic was blocked. No live API calls were
+    made for this recovery.
+  - Existing assessment PDFs and source notes were used to corroborate the
+    resolver call chains and Party behavior.
+  - Browser-generated WebView component URLs were excluded unless OctoSniff's
+    own code or observed Sony sign-in flow used them.
+  - Dynamic URLs returned by the backend (for example update downloads or an
+    Xbox authorization URL) cannot be listed as fixed routes; the API route
+    that returns them is included above.
+  - API access still requires the application's authorized authentication,
+    entitlement, device proof, TLS pinning/mTLS, or gateway credentials where
+    applicable.
+
+END OF INVENTORY

@@ -1,0 +1,39 @@
+minor fix pCP - Windows 10/11 Developer PoC 2026-07-27
+
+PSN Party bridge update 2026-08-01:
+  - preserves the application's native PlayStation link-status call;
+  - preserves the native ListCommunicationSessions call;
+  - removes the compatibility layer's hard-coded psnLinked:false response;
+  - removes the compatibility layer's forced empty Party session list; and
+  - continues to require a legitimately linked, valid PlayStation account and
+    available external service state for real Party data.
+
+This release fixes the second-PC startup failure that ended with:
+  System.InvalidOperationException at Process.get_MainWindowHandle()
+
+The launcher now:
+  - waits safely for either a main window or target-process exit;
+  - writes the target's real decimal and hexadecimal exit code;
+  - checks x64 Windows, administrator elevation, WebView2, WinDivert, and Wintun;
+  - supports slower Windows 10/11 startup with a 30-second window timeout;
+  - keeps WebView2 user data and OctoSniff runtime state package-local; and
+  - produces compatibility-report.txt for developer troubleshooting.
+
+Extract the complete ZIP first, then run Start-PoC.cmd from the extracted
+"minor fix pCP" folder. Do not launch the script from inside the ZIP preview.
+Only that one entry point is needed.
+
+Minor-fix additions:
+  - restores a manually selected monitoring adapter before considering defaults;
+  - preserves the original disabled port-443 filter and other existing filters;
+  - displays exactly one enabled Auto-hide Port 443 filter;
+  - hides TCP/UDP port 443 rows in either direction without blocking HTTPS;
+  - routes ARP scan/start calls to an active physical WiFi/Ethernet adapter;
+  - excludes TAP, tunnel, Wi-Fi Direct, Bluetooth, and loopback adapters from
+    the Layer-2 ARP path; and
+  - retains native ARP validation when no suitable physical adapter exists.
+
+This is a separate, unsigned, hash-locked, offline assessment PoC, not an
+official vendor patch or a universally deployable production build. The
+installed OctoSniff executable remains unchanged. For broad internal rollout,
+compile and sign a SECURITY_TEST_BUILD from the real application source.

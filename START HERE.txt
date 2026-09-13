@@ -1,0 +1,34 @@
+minor fix pCP - Developer Security PoC 2026-07-27
+
+Run:
+  1. If you received a ZIP, right-click it and choose Extract All. Do not run
+     Start-PoC.cmd from inside the ZIP preview or its temporary folder.
+  2. Open the extracted "minor fix pCP" folder.
+  3. Double-click Start-PoC.cmd and accept the Windows administrator prompt.
+  4. If it fails, send compatibility-report.txt and poc-run.log to the developers.
+  5. Read README.md and the "How Access Worked" folder.
+
+Expected result:
+  - No OctoSniff login or OctoSniff account is required.
+  - Party Chat preserves the native PSN status/session bridge. It shows Connect
+    PlayStation Network until an authorized link exists; no offline party or
+    username is fabricated.
+  - Community Filters shows 37 entries with package-local neutral artwork.
+  - PSN Party and PSN Tunnel have exact reconstructed local rules.
+  - The other 35 filters are visibly marked metadata-only and remain disabled.
+  - PSN and Xbox resolvers are visibly unavailable in this offline assessment.
+  - The original disabled 443 filter remains present.
+  - Auto-hide Port 443 appears once and hides 443 rows without blocking HTTPS.
+  - A manually selected network adapter remains selected after refresh.
+  - ARP scan/start uses an active physical WiFi/Ethernet adapter rather than a
+    VPN/TUN/TAP monitoring adapter.
+
+The installed application was left unchanged. This package contains a separate,
+hash-locked, process-memory proof-of-concept for developer remediation only.
+
+Compatibility target: 64-bit Windows 10/11 with Microsoft Edge WebView2.
+The launcher checks WebView2 and native capture files and records the target's
+real exit code if it closes before opening a window.
+
+The PSN packet filters do not decrypt usernames. See the report for the tested
+Party workflow, limitations, and server-side fixes.

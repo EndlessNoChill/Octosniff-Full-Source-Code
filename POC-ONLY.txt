@@ -1,0 +1,34 @@
+OCTOSNIFF SECURITY ASSESSMENT PROOF OF CONCEPT
+
+This package is a separate developer demonstration. It is not a production or
+redistributable product build.
+
+The launcher refuses to run unless app\sigh_Divine sniff.exe matches the exact
+assessed SHA-256. The copied executable is byte-identical to the assessed file;
+changes are applied only in the launched process. The installed Program Files
+copy is not written or renamed.
+
+Expected effects:
+1. No OctoSniff login page or OctoSniff account is required.
+2. Local feature navigation is available for developer inspection.
+3. Party Chat preserves the native PlayStation status and party-session bridge.
+   It shows `Connect PlayStation Network` when no authorized link exists and
+   does not fabricate a user or party.
+4. The 37-name Community Filters catalog and neutral thumbnails load from a
+   loopback-only service.
+5. Exact recovered PSN Party and PSN Tunnel packet rules are installed locally
+   and can be toggled from the Community Filters screen.
+6. The default network interface is selected automatically when available.
+7. Existing custom filters are preserved. The original disabled port-443 entry
+   is retained or recreated when missing. Exactly one enabled BOTH-direction
+   Auto-hide Port 443 rule hides matching monitor rows without blocking or
+   disrupting HTTPS traffic.
+8. A saved manual network-interface selection takes priority over auto-detection.
+9. ARP scan/start receives a physical WiFi/Ethernet interface name and never a
+   VPN/TUN/TAP fallback. Layer-2 validation remains enforced.
+
+The remaining 35 Community Filter entries are metadata-only and intentionally
+cannot install unknown packet rules. Packet matching is not PSN username
+decryption. The PSN and Xbox resolvers remain unavailable without their
+authorized server/database workflows. Refer to README.md and How Access Worked\
+before testing.
